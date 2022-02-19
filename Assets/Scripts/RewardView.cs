@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DailyRewardView : MonoBehaviour
+public class RewardView : MonoBehaviour
 {
-    private const string LastTimeKey = "LastRewardTime";
-    private const string ActiveSlotKey = "ActiveSlot";
+    [SerializeField] private string _lastTimeKey;
+    [SerializeField] private string _activeSlotKey;
 
     #region Fields
     [Header("Time settings")]
@@ -25,6 +24,8 @@ public class DailyRewardView : MonoBehaviour
     [SerializeField]
     public Transform SlotsParent;
     [SerializeField]
+    public Slider ProgressBar;
+    [SerializeField]
     public SlotRewardView SlotPrefab;
     [SerializeField]
     public Button ResetButton;
@@ -34,15 +35,15 @@ public class DailyRewardView : MonoBehaviour
 
     public int CurrentActiveSlot
     {
-        get => PlayerPrefs.GetInt(ActiveSlotKey);
-        set => PlayerPrefs.SetInt(ActiveSlotKey, value);
+        get => PlayerPrefs.GetInt(_activeSlotKey);
+        set => PlayerPrefs.SetInt(_activeSlotKey, value);
     }
 
     public DateTime? LastRewardTime
     {
         get
         {
-            var data = PlayerPrefs.GetString(LastTimeKey);
+            var data = PlayerPrefs.GetString(_lastTimeKey);
             if (string.IsNullOrEmpty(data))
                 return null;
             return DateTime.Parse(data);
@@ -50,9 +51,9 @@ public class DailyRewardView : MonoBehaviour
         set
         {
             if (value != null)
-                PlayerPrefs.SetString(LastTimeKey, value.ToString());
+                PlayerPrefs.SetString(_lastTimeKey, value.ToString());
             else
-                PlayerPrefs.DeleteKey(LastTimeKey);
+                PlayerPrefs.DeleteKey(_lastTimeKey);
         }
     }
 

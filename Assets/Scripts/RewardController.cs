@@ -3,14 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DailyRewardController
+public class RewardController
 {
-    private readonly DailyRewardView _rewardView;
+    private readonly RewardView _rewardView;
     private List<SlotRewardView> _slots;
 
     private bool _rewardReceived = false;
 
-    public DailyRewardController(DailyRewardView rewardView)
+    public RewardController(RewardView rewardView)
     {
         _rewardView = rewardView;
         InitSlots();
@@ -69,7 +69,9 @@ public class DailyRewardController
         if (delta.TotalSeconds < 0)
             delta = new TimeSpan(0);
 
-        _rewardView.RewardTimer.text = delta.ToString();
+        _rewardView.ProgressBar.value = (_rewardView.TimeCooldown - (float)delta.TotalSeconds) / _rewardView.TimeCooldown;
+
+        _rewardView.RewardTimer.text = delta.ToString(@"dd\.hh\:mm\:ss");
     }
 
     private void InitSlots()

@@ -18,6 +18,8 @@ public class CurrencyWindow : MonoBehaviour
     private void Start()
     {
         RefreshText();
+        Wood = 0; // потом убрать
+        Diamond = 0; // потом убрать
     } 
 
     private int Wood

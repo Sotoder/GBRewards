@@ -5,12 +5,22 @@ using UnityEngine;
 public class Root : MonoBehaviour
 {
     [SerializeField]
-    private DailyRewardView _rewardView;
+    private RewardView _dalyRewardView;
 
-    private DailyRewardController _controller;
+    [SerializeField]
+    private RewardView _weeklyRewardView;
+
+    [SerializeField]
+    private RewardsContainerSwitcher _rewardsContainerSwitcher;
+
+    private RewardController _dalyController;
+    private RewardController _weeklyController;
 
     void Start()
     {
-        _controller = new DailyRewardController(_rewardView);
+        _dalyController = new RewardController(_dalyRewardView);
+        _weeklyController = new RewardController(_weeklyRewardView);
+
+        _rewardsContainerSwitcher.Init();
     }
 }
