@@ -1,41 +1,55 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class RewardsContainerSwitcher : MonoBehaviour
 {
-    [SerializeField] private Button _dailyButton;
-    [SerializeField] private Button _weeklyButton;
-    [SerializeField] private Image _dailyButtonImage;
-    [SerializeField] private Image _weeklyButtonImage;
-    [SerializeField] private GameObject _dailyContainer;
-    [SerializeField] private GameObject _weeklyContainer;
+    [SerializeField] private Transform _horizontalLayout;
+    [SerializeField] private ButtonView _buttonViewPrefab;
 
-    public void Init()
+    private ISwitchableRewardController _rewardController;
+    private List<ButtonView> _buttonViews = new List<ButtonView>();
+    private List<GameObject> _uiContainers = new List<GameObject>();
+
+    public void Init(List<RewardView> rewardViews, ISwitchableRewardController rewardController)
     {
-        _dailyButton.onClick.AddListener(ShowDailyContainer);
-        _weeklyButton.onClick.AddListener(ShowWeeklyContainer);
-        ShowDailyContainer();
+        _rewardController = rewardController;
+
+        for (int i = 0; i < rewardViews.Count; i++)
+        {
+            var button = Instantiate<ButtonView>(_buttonViewPrefab, _horizontalLayout);
+            int index = i;
+            button.ViewButton.onClick.AddListener(() => SwitchContainer(index, button, _uiContainers[index]));
+            button.ButtonText.text = rewardViews[i].Name;
+            _buttonViews.Add(button);
+            _uiContainers.Add(rewardViews[i].UIContainer);
+
+            SwitchContainer(0, _buttonViews[0], _uiContainers[0]);
+        }
     }
 
-    private void ShowWeeklyContainer()
+    private void SwitchContainer(int index, ButtonView button, GameObject uiContainer)
     {
-        _dailyContainer.SetActive(false);
-        _weeklyContainer.SetActive(true);
-        _dailyButtonImage.color = Color.white;
-        _weeklyButtonImage.color = Color.green;
-    }
+        foreach (var buttonView in _buttonViews)
+        {
+            if(buttonView == button) buttonView.ButtonImage.color = Color.green;
+            else buttonView.ButtonImage.color = Color.white;
+        }
+        foreach (var container in _uiContainers)
+        {
+            if (container == uiContainer) container.SetActive(true);
+            else container.SetActive(false);
+        }
 
-    private void ShowDailyContainer()
-    {
-        _weeklyContainer.SetActive(false);
-        _dailyContainer.SetActive(true);
-        _dailyButtonImage.color = Color.green;
-        _weeklyButtonImage.color = Color.white;
+        _rewardController.SetCurentRewardView(index);
     }
 
     public void OnDestroy()
     {
-        _dailyButton.onClick.RemoveAllListeners();
-        _weeklyButton.onClick.RemoveAllListeners();
+        foreach (var button in _buttonViews)
+        {
+            button.ViewButton.onClick.RemoveAllListeners();
+        }
     }
 }

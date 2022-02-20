@@ -5,22 +5,23 @@ using UnityEngine;
 public class Root : MonoBehaviour
 {
     [SerializeField]
-    private RewardView _dalyRewardView;
-
-    [SerializeField]
-    private RewardView _weeklyRewardView;
+    private List<RewardView> _rewardViews;
 
     [SerializeField]
     private RewardsContainerSwitcher _rewardsContainerSwitcher;
 
-    private RewardController _dalyController;
-    private RewardController _weeklyController;
+    private RewardController _controller;
+    private MementoSaver _mementoSaver;
+    private SaveLoadDataController _saveDataController;
 
     void Start()
     {
-        _dalyController = new RewardController(_dalyRewardView);
-        _weeklyController = new RewardController(_weeklyRewardView);
+        _mementoSaver = new MementoSaver(new List<ISavebleRewardView>(_rewardViews));
+        var loadManager = new LoadManager(new List<ILoadableRewardView>(_rewardViews));
+        _saveDataController = new SaveLoadDataController(_mementoSaver, new List<IViewWithSaveAndLoadButton>(_rewardViews), loadManager);
 
-        _rewardsContainerSwitcher.Init();
+        _controller = new RewardController(_rewardViews);
+
+        _rewardsContainerSwitcher.Init(_rewardViews, _controller);
     }
 }

@@ -4,12 +4,18 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RewardView : MonoBehaviour
+public class RewardView : MonoBehaviour, ISavebleRewardView, IViewWithSaveAndLoadButton, ILoadableRewardView
 {
-    [SerializeField] private string _lastTimeKey;
-    [SerializeField] private string _activeSlotKey;
-
-    #region Fields
+    #region InspectorFields
+    [SerializeField]
+    public string Name;
+    [Space]
+    [Header("PlayerPref Settings")]
+    [SerializeField] 
+    private string _lastTimeKey;
+    [SerializeField] 
+    private string _activeSlotKey;
+    [Space]
     [Header("Time settings")]
     [SerializeField]
     public int TimeCooldown = 86400;
@@ -19,6 +25,8 @@ public class RewardView : MonoBehaviour
     [Header("RewardSettings")]
     public List<Reward> Rewards;
     [Header("UI")]
+    [SerializeField]
+    public GameObject UIContainer;
     [SerializeField]
     public TMP_Text RewardTimer;
     [SerializeField]
@@ -30,9 +38,20 @@ public class RewardView : MonoBehaviour
     [SerializeField]
     public Button ResetButton;
     [SerializeField]
+    private Button _saveButton;
+    [SerializeField]
+    private Button _loadButton;
+    [SerializeField]
     public Button GetRewardButton;
     #endregion
 
+    public List<SlotRewardView> Slots;
+    public bool RewardReceived = false;
+
+    private int _id;
+
+    public int ID => _id;
+    public Action UserGetReward { get; set; }
     public int CurrentActiveSlot
     {
         get => PlayerPrefs.GetInt(_activeSlotKey);
@@ -51,17 +70,33 @@ public class RewardView : MonoBehaviour
         set
         {
             if (value != null)
+            {
                 PlayerPrefs.SetString(_lastTimeKey, value.ToString());
+            }
             else
                 PlayerPrefs.DeleteKey(_lastTimeKey);
         }
     }
 
+    public Button SaveButton { get => _saveButton; }
+    public Button LoadButton { get => _loadButton; }
+
+    private void Awake()
+    {
+        _id = Animator.StringToHash(Name);
+    }
+    public void Load(RewardViewMemento rewardViewMemento)
+    {
+        CurrentActiveSlot = rewardViewMemento.CurrentActiveSlot;
+        if (rewardViewMemento.LastRewardTime == "") LastRewardTime = null;
+        else LastRewardTime =  DateTime.Parse(rewardViewMemento.LastRewardTime);
+    }
 
     private void OnDestroy()
     {
         GetRewardButton.onClick.RemoveAllListeners();
         ResetButton.onClick.RemoveAllListeners();
+        SaveButton.onClick.RemoveAllListeners();
+        LoadButton.onClick.RemoveAllListeners();
     }
-
 }

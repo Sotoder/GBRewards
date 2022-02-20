@@ -3,20 +3,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RewardController
+public class RewardController: ISwitchableRewardController
 {
-    private readonly RewardView _rewardView;
-    private List<SlotRewardView> _slots;
+    private readonly List<RewardView> _rewardViews = new List<RewardView>();
+    private RewardView _curentRewardView;
 
-    private bool _rewardReceived = false;
-
-    public RewardController(RewardView rewardView)
+    public RewardController(List<RewardView> rewardViews)
     {
-        _rewardView = rewardView;
-        InitSlots();
-        RefreshUi();
-        _rewardView.StartCoroutine(UpdateCoroutine());
-        SubscribeButtons();
+        _rewardViews = rewardViews;
+        foreach (var view in _rewardViews)
+        {
+            InitSlots(view);
+            SubscribeButtons(view);
+        }
+        _curentRewardView = _rewardViews[0];
+        _curentRewardView.StartCoroutine(UpdateCoroutine());
+    }
+
+    void ISwitchableRewardController.SetCurentRewardView(int rewardViewIndex)
+    {
+        for (int i = 0; i < _rewardViews.Count; i++)
+        {
+            if (i == rewardViewIndex)
+            {
+                _curentRewardView = _rewardViews[i];
+                RefreshRewardState();
+                RefreshUi();
+            }
+        }
     }
 
     private IEnumerator UpdateCoroutine()
@@ -24,7 +38,7 @@ public class RewardController
         while (true)
         {
             Update();
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(0.5f);
         }
     }
 
@@ -36,73 +50,73 @@ public class RewardController
 
     private void RefreshRewardState()
     {
-        _rewardReceived = false;
-        if (_rewardView.LastRewardTime.HasValue)
+        _curentRewardView.RewardReceived = false;
+        if (_curentRewardView.LastRewardTime.HasValue)
         {
-            var timeSpan = DateTime.UtcNow - _rewardView.LastRewardTime.Value;
-            if (timeSpan.Seconds > _rewardView.TimeDeadline)
+            var timeSpan = DateTime.UtcNow - _curentRewardView.LastRewardTime.Value;
+            if (timeSpan.TotalSeconds > _curentRewardView.TimeDeadline)
             {
-                _rewardView.LastRewardTime = null;
-                _rewardView.CurrentActiveSlot = 0;
+                _curentRewardView.LastRewardTime = null;
+                _curentRewardView.CurrentActiveSlot = 0;
             }
-            else if(timeSpan.Seconds < _rewardView.TimeCooldown)
+            else if(timeSpan.TotalSeconds < _curentRewardView.TimeCooldown)
             {
-                _rewardReceived = true;
+                _curentRewardView.RewardReceived = true;
             }
         }
     }
 
     private void RefreshUi()
     {
-        _rewardView.GetRewardButton.interactable = !_rewardReceived;
+        _curentRewardView.GetRewardButton.interactable = !_curentRewardView.RewardReceived;
 
-        for (var i = 0; i < _rewardView.Rewards.Count; i++)
+        for (var i = 0; i < _curentRewardView.Rewards.Count; i++)
         {
-            _slots[i].SetData(_rewardView.Rewards[i], i+1, i <= _rewardView.CurrentActiveSlot);
+            _curentRewardView.Slots[i].SetData(_curentRewardView.Rewards[i], i+1, i <= _curentRewardView.CurrentActiveSlot);
         }
 
         DateTime nextDailyBonusTime =
-            !_rewardView.LastRewardTime.HasValue
+            !_curentRewardView.LastRewardTime.HasValue
                 ? DateTime.MinValue
-                : _rewardView.LastRewardTime.Value.AddSeconds(_rewardView.TimeCooldown);
+                : _curentRewardView.LastRewardTime.Value.AddSeconds(_curentRewardView.TimeCooldown);
         var delta = nextDailyBonusTime - DateTime.UtcNow;
         if (delta.TotalSeconds < 0)
             delta = new TimeSpan(0);
 
-        _rewardView.ProgressBar.value = (_rewardView.TimeCooldown - (float)delta.TotalSeconds) / _rewardView.TimeCooldown;
+        _curentRewardView.ProgressBar.value = (_curentRewardView.TimeCooldown - (float)delta.TotalSeconds) / _curentRewardView.TimeCooldown;
 
-        _rewardView.RewardTimer.text = delta.ToString(@"dd\.hh\:mm\:ss");
+        _curentRewardView.RewardTimer.text = delta.ToString(@"dd\.hh\:mm\:ss");
     }
 
-    private void InitSlots()
+    private void InitSlots(RewardView rewardView)
     {
-        _slots = new List<SlotRewardView>();
-        for (int i = 0; i < _rewardView.Rewards.Count; i++)
+        rewardView.Slots = new List<SlotRewardView>();
+        for (int i = 0; i < rewardView.Rewards.Count; i++)
         {
-            var reward = _rewardView.Rewards[i];
-            var slotInstance = GameObject.Instantiate(_rewardView.SlotPrefab, _rewardView.SlotsParent, false);
+            var reward = rewardView.Rewards[i];
+            var slotInstance = GameObject.Instantiate(rewardView.SlotPrefab, rewardView.SlotsParent, false);
             slotInstance.SetData(reward, i+1, false);
-            _slots.Add(slotInstance);
+            rewardView.Slots.Add(slotInstance);
         }
     }
 
-    private void SubscribeButtons()
+    private void SubscribeButtons(RewardView rewardView)
     {
-        _rewardView.GetRewardButton.onClick.AddListener(ClaimReward);
-        _rewardView.ResetButton.onClick.AddListener(ResetReward);
+        rewardView.GetRewardButton.onClick.AddListener(ClaimReward);
+        rewardView.ResetButton.onClick.AddListener(ResetReward);
     }
 
     private void ResetReward()
     {
-        _rewardView.LastRewardTime = null;
-        _rewardView.CurrentActiveSlot = 0;
+        _curentRewardView.LastRewardTime = null;
+        _curentRewardView.CurrentActiveSlot = 0;
     }
 
     private void ClaimReward()
     {
-        if (_rewardReceived)
+        if (_curentRewardView.RewardReceived)
             return;
-        var reward = _rewardView.Rewards[_rewardView.CurrentActiveSlot];
+        var reward = _curentRewardView.Rewards[_curentRewardView.CurrentActiveSlot];
         switch (reward.Type)
         {
             case RewardType.None:
@@ -117,8 +131,9 @@ public class RewardController
                 throw new ArgumentOutOfRangeException();
         }
 
-        _rewardView.LastRewardTime = DateTime.UtcNow;
-        _rewardView.CurrentActiveSlot = (_rewardView.CurrentActiveSlot + 1) % _rewardView.Rewards.Count;
+        _curentRewardView.LastRewardTime = DateTime.UtcNow;
+        _curentRewardView.CurrentActiveSlot = (_curentRewardView.CurrentActiveSlot + 1) % _curentRewardView.Rewards.Count;
+        _curentRewardView.UserGetReward?.Invoke();
         RefreshRewardState();
     }
 }
