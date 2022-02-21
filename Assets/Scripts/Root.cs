@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,6 +15,8 @@ public class Root : MonoBehaviour
     private MementoSaver _mementoSaver;
     private SaveLoadDataController _saveDataController;
 
+    private List<IDisposable> _disposables = new List<IDisposable>();
+
     void Start()
     {
         _mementoSaver = new MementoSaver(new List<ISavebleRewardView>(_rewardViews));
@@ -22,6 +25,18 @@ public class Root : MonoBehaviour
 
         _controller = new RewardController(_rewardViews);
 
-        _rewardsContainerSwitcher.Init(_rewardViews, _controller);
+        _rewardsContainerSwitcher.Init(new List<ISwitchableRewardView>(_rewardViews), _controller); 
+
+        _disposables.Add(_mementoSaver);
+        _disposables.Add(_controller);
+        _disposables.Add(_saveDataController);
+    }
+
+    private void OnDestroy()
+    {
+        foreach (var element in _disposables)
+        {
+            element.Dispose();
+        }
     }
 }

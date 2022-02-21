@@ -12,7 +12,7 @@ public class RewardsContainerSwitcher : MonoBehaviour
     private List<ButtonView> _buttonViews = new List<ButtonView>();
     private List<GameObject> _uiContainers = new List<GameObject>();
 
-    public void Init(List<RewardView> rewardViews, ISwitchableRewardController rewardController)
+    public void Init(List<ISwitchableRewardView> rewardViews, ISwitchableRewardController rewardController)
     {
         _rewardController = rewardController;
 

@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
-public class SaveLoadDataController
+public class SaveLoadDataController: IDisposable
 {
     private MementoSaver _mementoSaver;
     private List<IViewWithSaveAndLoadButton> _viewsWhithButton = new List<IViewWithSaveAndLoadButton>();
@@ -33,5 +34,14 @@ public class SaveLoadDataController
     private void LoadButtonPress()
     {
         _repository.Load();
+    }
+
+    public void Dispose()
+    {
+        foreach (var view in _viewsWhithButton)
+        {
+            view.SaveButton.onClick.RemoveListener(SaveButtonPress);
+            view.LoadButton.onClick.RemoveListener(LoadButtonPress);
+        }
     }
 }

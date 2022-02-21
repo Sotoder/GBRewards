@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-public class MementoSaver
+public class MementoSaver: IDisposable
 {
     private List<ISavebleRewardView> _savebleViews = new List<ISavebleRewardView>();
     private List<GameMemento> _gameMementos = new List<GameMemento>(8);
@@ -45,5 +45,13 @@ public class MementoSaver
         if (_gameMementos.Count == 0) return null;
 
         return _gameMementos[_gameMementos.Count - 1];
+    }
+
+    public void Dispose()
+    {
+        foreach (var view in _savebleViews)
+        {
+            view.UserGetReward -= SaveMemento;
+        }
     }
 }

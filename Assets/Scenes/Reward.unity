@@ -868,6 +868,11 @@ PrefabInstance:
       propertyPath: _saveButton
       value: 
       objectReference: {fileID: 1869348889}
+    - target: {fileID: 1933054103677849623, guid: 167e6f212b59a274e859c9c88ec55b4b,
+        type: 3}
+      propertyPath: _uiContainer
+      value: 
+      objectReference: {fileID: 535127889446542339}
     - target: {fileID: 2143345695819206702, guid: 167e6f212b59a274e859c9c88ec55b4b,
         type: 3}
       propertyPath: m_IsActive
@@ -1059,6 +1064,11 @@ PrefabInstance:
       propertyPath: _saveButton
       value: 
       objectReference: {fileID: 128500814}
+    - target: {fileID: 2059481521437273567, guid: 15b7dd2017c4cf047b86577dc63c6436,
+        type: 3}
+      propertyPath: _uiContainer
+      value: 
+      objectReference: {fileID: 535127889415497241}
     - target: {fileID: 7589067662264406447, guid: 15b7dd2017c4cf047b86577dc63c6436,
         type: 3}
       propertyPath: m_AnchorMax.y

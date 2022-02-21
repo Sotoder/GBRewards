@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RewardController: ISwitchableRewardController
+public class RewardController: ISwitchableRewardController, IDisposable
 {
     private readonly List<RewardView> _rewardViews = new List<RewardView>();
     private RewardView _curentRewardView;
@@ -135,5 +135,14 @@ public class RewardController: ISwitchableRewardController
         _curentRewardView.CurrentActiveSlot = (_curentRewardView.CurrentActiveSlot + 1) % _curentRewardView.Rewards.Count;
         _curentRewardView.UserGetReward?.Invoke();
         RefreshRewardState();
+    }
+
+    public void Dispose()
+    {
+        foreach(var view in _rewardViews)
+        {
+            view.GetRewardButton.onClick.RemoveListener(ClaimReward);
+            view.ResetButton.onClick.RemoveListener(ResetReward);
+        }
     }
 }

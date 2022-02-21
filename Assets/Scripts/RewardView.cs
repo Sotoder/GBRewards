@@ -4,11 +4,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RewardView : MonoBehaviour, ISavebleRewardView, IViewWithSaveAndLoadButton, ILoadableRewardView
+public class RewardView : MonoBehaviour, ISavebleRewardView, IViewWithSaveAndLoadButton, ILoadableRewardView, ISwitchableRewardView
 {
     #region InspectorFields
     [SerializeField]
-    public string Name;
+    private string _name;
     [Space]
     [Header("PlayerPref Settings")]
     [SerializeField] 
@@ -26,7 +26,7 @@ public class RewardView : MonoBehaviour, ISavebleRewardView, IViewWithSaveAndLoa
     public List<Reward> Rewards;
     [Header("UI")]
     [SerializeField]
-    public GameObject UIContainer;
+    private GameObject _uiContainer;
     [SerializeField]
     public TMP_Text RewardTimer;
     [SerializeField]
@@ -80,6 +80,8 @@ public class RewardView : MonoBehaviour, ISavebleRewardView, IViewWithSaveAndLoa
 
     public Button SaveButton { get => _saveButton; }
     public Button LoadButton { get => _loadButton; }
+    public string Name { get => _name; }
+    public GameObject UIContainer { get => _uiContainer; }
 
     private void Awake()
     {
