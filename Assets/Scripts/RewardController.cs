@@ -110,6 +110,7 @@ public class RewardController: ISwitchableRewardController, IDisposable
     {
         _curentRewardView.LastRewardTime = null;
         _curentRewardView.CurrentActiveSlot = 0;
+        _curentRewardView.UserResetView?.Invoke();
     }
 
     private void ClaimReward()

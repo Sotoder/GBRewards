@@ -52,6 +52,7 @@ public class RewardView : MonoBehaviour, ISavebleRewardView, IViewWithSaveAndLoa
 
     public int ID => _id;
     public Action UserGetReward { get; set; }
+    public Action UserResetView { get; set; }
     public int CurrentActiveSlot
     {
         get => PlayerPrefs.GetInt(_activeSlotKey);

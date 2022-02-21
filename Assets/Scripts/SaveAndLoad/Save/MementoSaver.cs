@@ -13,6 +13,7 @@ public class MementoSaver: IDisposable
         foreach (var view in _savebleViews)
         {
             view.UserGetReward += SaveMemento;
+            view.UserResetView += SaveMemento;
         }
     }
 
@@ -52,6 +53,7 @@ public class MementoSaver: IDisposable
         foreach (var view in _savebleViews)
         {
             view.UserGetReward -= SaveMemento;
+            view.UserResetView -= SaveMemento;
         }
     }
 }
