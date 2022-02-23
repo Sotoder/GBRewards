@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -32,6 +33,13 @@ public class CurrencyWindow : MonoBehaviour
         set => PlayerPrefs.SetInt(DiamondKey, value);
     }
 
+    public void Load(CurrencyViewMemento currencyMemento)
+    {
+        Wood = currencyMemento.Wood;
+        Diamond = currencyMemento.Diamond;
+        RefreshText();
+    }
+
     public void AddDiamond(int count)
     {
         Diamond += count;
@@ -42,6 +50,16 @@ public class CurrencyWindow : MonoBehaviour
     {
         Wood += count;
         RefreshText();
+    }
+
+    public int GetWoodCount()
+    {
+        return Wood;
+    }
+
+    public int GetDiamondCount()
+    {
+        return Diamond;
     }
 
     private void RefreshText()
